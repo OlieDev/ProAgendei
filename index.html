@@ -9,11 +9,9 @@
 <body>
     <nav>
         <img src="logo.png" alt="">
-
     </nav>
    
     <div class="container">
-      
         <h1>Agendamento de Alunos</h1>
         <form id="appointment-form">
             <input type="text" id="student-name" placeholder="Nome do Aluno" required>
@@ -25,6 +23,12 @@
         <h2>Agendamentos</h2>
         <ul id="appointment-list"></ul>
     </div>
+
+    <!-- Adicionando o Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+    <!-- Seu script.js -->
     <script src="script.js"></script>
 </body>
 </html>
