@@ -1,96 +1,92 @@
-// Configuração do Firebase com seu URL de banco de dados
+// Importando Firebase e os produtos necessários
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+// Configuração do Firebase
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY", // Substitua pela sua API Key do Firebase
-    authDomain: "proagendei.firebaseapp.com", // Substitua pelo seu authDomain
-    databaseURL: "https://proagendei-default-rtdb.firebaseio.com/", // Este é o seu databaseURL
-    projectId: "proagendei", // Substitua pelo seu projectId
-    storageBucket: "proagendei.appspot.com", // Substitua pelo seu storageBucket
-    messagingSenderId: "SEU_MESSAGING_SENDER_ID", // Substitua pelo seu Messaging Sender ID
-    appId: "SEU_APP_ID" // Substitua pelo seu App ID
+    apiKey: "AIzaSyDDdBiq0Ym4ia4ci8oeuVuWgdLGLn9Ka7I",
+    authDomain: "proagendei.firebaseapp.com",
+    databaseURL: "https://proagendei-default-rtdb.firebaseio.com",
+    projectId: "proagendei",
+    storageBucket: "proagendei.appspot.com",
+    messagingSenderId: "585572746877",
+    appId: "1:585572746877:web:f68f5d260531968d649314",
+    measurementId: "G-LXM6CJV798"
 };
 
-// Inicializar o Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+// Inicializando Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
+// Formulário e lista de agendamentos
+const appointmentForm = document.getElementById('appointment-form');
+const appointmentList = document.getElementById('appointment-list');
 
-// Função para salvar agendamento no Firebase
-function saveAppointment(appointment) {
-    const ref = database.ref('appointments');
-    ref.push(appointment);
-}
-
-// Função para carregar agendamentos do Firebase
-function loadAppointments() {
-    const ref = database.ref('appointments');
-    ref.on('value', (snapshot) => {
-        const appointments = snapshot.val();
-        displayAppointments(appointments);
+// Função para renderizar os agendamentos
+function renderAppointments(snapshot) {
+    appointmentList.innerHTML = ''; // Limpa a lista antes de renderizar novamente
+    snapshot.forEach(function (childSnapshot) {
+        const appointment = childSnapshot.val();
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <strong>${appointment.studentName}</strong> - ${appointment.service} - 
+            ${appointment.date} às ${appointment.time}
+            <button class="edit" data-id="${childSnapshot.key}">Editar</button>
+            <button class="delete" data-id="${childSnapshot.key}">Excluir</button>
+        `;
+        appointmentList.appendChild(li);
     });
 }
 
-// Função para exibir agendamentos na lista
-function displayAppointments(appointments) {
-    const appointmentList = document.getElementById('appointment-list');
-    appointmentList.innerHTML = ''; // Limpa a lista existente
-
-    for (const key in appointments) {
-        const app = appointments[key];
-        const listItem = document.createElement('li');
-        listItem.textContent = `Agendamento - ${app.name} - ${app.service} - ${app.date} - ${app.time}`;
-
-        // Botão de Editar
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Editar';
-        editButton.onclick = () => editAppointment(key, app);
-        listItem.appendChild(editButton);
-
-        // Botão de Excluir
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Excluir';
-        deleteButton.onclick = () => deleteAppointment(key);
-        listItem.appendChild(deleteButton);
-
-        appointmentList.appendChild(listItem);
+// Lê os agendamentos em tempo real
+const appointmentsRef = ref(database, 'appointments/');
+onValue(appointmentsRef, (snapshot) => {
+    if (snapshot.exists()) {
+        renderAppointments(snapshot);
+    } else {
+        appointmentList.innerHTML = '<li>Nenhum agendamento encontrado.</li>';
     }
-}
+});
 
-// Função para editar agendamento
-function editAppointment(key, appointment) {
-    document.getElementById('student-name').value = appointment.name;
-    document.getElementById('service').value = appointment.service;
-    document.getElementById('date').value = appointment.date;
-    document.getElementById('time').value = appointment.time;
-
-    // Excluir o agendamento antigo para que ele seja atualizado ao salvar
-    deleteAppointment(key);
-}
-
-// Função para excluir agendamento
-function deleteAppointment(key) {
-    const ref = database.ref('appointments/' + key);
-    ref.remove();
-}
-
-// Chama a função de carregar agendamentos ao carregar a página
-document.addEventListener('DOMContentLoaded', loadAppointments);
-
-// Evento de envio do formulário para criar novo agendamento
-document.getElementById('appointment-form').addEventListener('submit', function(e) {
+// Adicionar um agendamento
+appointmentForm.addEventListener('submit', (e) => {
     e.preventDefault();
-
-    const name = document.getElementById('student-name').value;
+    const studentName = document.getElementById('student-name').value;
     const service = document.getElementById('service').value;
     const date = document.getElementById('date').value;
     const time = document.getElementById('time').value;
 
-    const appointment = {
-        name,
+    const newAppointmentRef = push(appointmentsRef);
+    set(newAppointmentRef, {
+        studentName,
         service,
         date,
         time
-    };
+    });
 
-    saveAppointment(appointment);
-    document.getElementById('appointment-form').reset();
+    // Limpar o formulário
+    appointmentForm.reset();
+});
+
+// Editar um agendamento
+appointmentList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('edit')) {
+        const id = e.target.getAttribute('data-id');
+        const studentName = prompt("Digite o novo nome do aluno:");
+        const service = prompt("Digite o novo serviço:");
+        const date = prompt("Digite a nova data (YYYY-MM-DD):");
+        const time = prompt("Digite o novo horário (HH:MM):");
+        
+        const appointmentRef = ref(database, 'appointments/' + id);
+        update(appointmentRef, { studentName, service, date, time });
+    }
+});
+
+// Excluir um agendamento
+appointmentList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('delete')) {
+        const id = e.target.getAttribute('data-id');
+        const appointmentRef = ref(database, 'appointments/' + id);
+        remove(appointmentRef);
+    }
 });
