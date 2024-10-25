@@ -10,11 +10,12 @@ nav {
     color: #fff;
     padding: 10px;
     text-align: center;
-    img{
-        width: 15%;
-        height:15%;
-        border-radius: 15%;
-    }
+}
+
+nav img {
+    width: 20%;
+    height: 15%;
+    border-radius: 3%;
 }
 
 .container {
@@ -48,6 +49,26 @@ button {
 
 button:hover {
     background-color: #218838;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.tablinks {
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+}
+
+.tabcontent {
+    display: none;
 }
 
 ul {

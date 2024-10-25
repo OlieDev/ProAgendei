@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamento de Alunos</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <nav>
         <img src="logo.png" alt="Logo">
@@ -19,9 +21,19 @@
             <input type="time" id="time" required>
             <button type="submit">Agendar</button>
         </form>
-        <h2>Agendamentos</h2>
-        <ul id="appointment-list"></ul>
+        <button class="tablinks" id="today-tab">Hoje</button>
+        <button class="tablinks" id="future-tab">Futuros</button>
+
+        <div id="today" class="tabcontent">
+            <h2>Agendamentos de Hoje</h2>
+            <ul id="today-appointments"></ul>
+        </div>
+        <div id="future" class="tabcontent">
+            <h2>Agendamentos Futuros</h2>
+            <ul id="future-appointments"></ul>
+        </div>
     </div>
     <script type="module" src="script.js"></script>
 </body>
+
 </html>
